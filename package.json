@@ -1,0 +1,33 @@
+{
+  "name": "taser-runner",
+  "version": "1.0.0",
+  "description": "TASER jobs runner and query server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thepalbi/taser-runner.git"
+  },
+  "keywords": [
+    "TASER",
+    "runner",
+    "dynamic-analysis",
+    "nodeprof"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thepalbi/taser-runner/issues"
+  },
+  "homepage": "https://github.com/thepalbi/taser-runner#readme",
+  "devDependencies": {
+    "tslint": "^6.1.3",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@types/node": "^15.6.0",
+    "arg": "^5.0.0"
+  }
+}
