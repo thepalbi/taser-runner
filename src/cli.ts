@@ -1,6 +1,6 @@
 import arg from "arg";
 import { isAbsolute, join } from "path";
-import { CommandExecutor, GitCloneExecutor, NpmExecutor } from ".";
+import { extractFromRepoUrl, GitCloneExecutor, NpmExecutor, runCommandExecutorsChain } from ".";
 import { issueJob } from "./stores";
 
 const args = arg({
@@ -39,16 +39,6 @@ if (!isAbsolute(wd)) {
     throw new Error("--wd has to be an absolute path");
 }
 
-function extractFromRepoUrl(url: string): { repoName: string, repoAuthor: string } {
-    let extraction = url.match(/github\.com\/(?<repoAuthor>.+)\/(?<repoName>.+)\.git/);
-    if (extraction?.groups == undefined)
-        throw new Error("Could't extract repoName and repoAuthor from url");
-    return {
-        repoName: extraction.groups.repoName,
-        repoAuthor: extraction.groups.repoAuthor
-    }
-}
-
 const { repoName, repoAuthor } = extractFromRepoUrl(repo);
 const clonePath = join(wd, `${repoAuthor}-${repoName}`);
 
@@ -75,5 +65,5 @@ if (args["--issue"]) {
         .then(() => console.log("Job issued!"));
 } else if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
-    commands.reduce((prom, command) => prom.then(_ => command.run()), new Promise(r => r("")));
+    runCommandExecutorsChain(commands);
 }

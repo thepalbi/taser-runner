@@ -68,3 +68,18 @@ export class TaserExecutor extends CommandExecutor {
                 "node_modules/mocha/bin/mocha", "test/"], env, projectDir);
     }
 }
+
+export function runCommandExecutorsChain(cl: CommandExecutor[]) {
+    return cl
+        .reduce((prom, command) => prom.then(_ => command.run()), new Promise<string>(r => r("")));
+}
+
+export function extractFromRepoUrl(url: string): { repoName: string, repoAuthor: string } {
+    let extraction = url.match(/github\.com\/(?<repoAuthor>.+)\/(?<repoName>.+)\.git/);
+    if (extraction?.groups == undefined)
+        throw new Error("Could't extract repoName and repoAuthor from url");
+    return {
+        repoName: extraction.groups.repoName,
+        repoAuthor: extraction.groups.repoAuthor
+    }
+}

@@ -8,6 +8,10 @@ export interface JobProps {
     status: JobStatus
 }
 
+export interface FinishedJobProps extends JobProps {
+    error: string
+}
+
 let jobsStore = open({
     path: "db/jobs.db",
     compression: true
@@ -24,6 +28,14 @@ export function walkJobs(filter?: JobFilter): Iterable<{ key: number, value: Job
             return { key: keyAsNum, value: valueAsJobProps };
         })
         .filter(jobEntry => doFilter(jobEntry.value));
+}
+
+export function markTaken(id: number, props: JobProps) {
+    jobsStore.putSync(id, props);
+}
+
+export async function updateJob(id: number, job: JobProps | FinishedJobProps) {
+    jobsStore.put(id, job);
 }
 
 export async function issueJob(props: JobProps) {
