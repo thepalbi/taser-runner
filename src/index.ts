@@ -25,7 +25,7 @@ export class CommandExecutor {
 
             exec(joinedCommand, execOptions, (err, stdout, stderr) => {
                 if (err == null) {
-                    resolve(stdout);
+                    return resolve(stdout);
                 }
 
                 console.error("Error executing %s. STDERR:\n%s\nSTDOUT:\n%s\n", this.name, stderr, stdout);

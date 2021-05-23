@@ -63,7 +63,5 @@ if (args["--list-commands"]) {
 
 if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
-    (async () => {
-        await commands[0].run();
-    })();
+    commands.reduce((prom, command) => prom.then(_ => command.run()), new Promise(r => r("")));
 }
