@@ -57,12 +57,14 @@ if (args["--list-commands"]) {
 
 if (args["--issue"]) {
     console.log("Issuing job to be ran")
+    const iat = Date.now();
     issueJob({
+        issuedAt: iat,
         name: `TaserJob-${repoAuthor}-${repoName}`,
         repo: repo,
         status: "pending"
     })
-        .then(() => console.log("Job issued!"));
+        .then(() => console.log("Job issued with id=[%d]!", iat));
 } else if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
     runCommandExecutorsChain(commands);

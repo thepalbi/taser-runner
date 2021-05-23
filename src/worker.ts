@@ -1,12 +1,11 @@
 import arg from "arg";
 import { join, isAbsolute } from "path";
 import { extractFromRepoUrl, GitCloneExecutor, NpmExecutor, runCommandExecutorsChain } from ".";
-import { FinishedJobProps, issueJob, JobProps, markTaken, updateJob, walkJobs } from "./stores";
+import { FinishedJobProps, JobProps, markTaken, updateJob, walkJobs } from "./stores";
 
 const args = arg({
     "--wd": String
 });
-
 
 if (!args["--wd"] || !isAbsolute(args["--wd"])) {
     throw new Error("--wd is required, and needs to be the wokers working directory absolute path");

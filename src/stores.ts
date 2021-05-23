@@ -3,6 +3,7 @@ import { open } from "lmdb-store";
 type JobStatus = "pending" | "working" | "done" | "failed";
 
 export interface JobProps {
+    issuedAt: number,
     name: string,
     repo: string,
     status: JobStatus
@@ -40,5 +41,5 @@ export async function updateJob(id: number, job: JobProps | FinishedJobProps) {
 }
 
 export async function issueJob(props: JobProps) {
-    await jobsStore.put(Date.now(), props);
+    await jobsStore.put(props.issuedAt, props);
 }
