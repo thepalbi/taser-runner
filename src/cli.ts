@@ -1,11 +1,13 @@
 import arg from "arg";
 import { isAbsolute, join } from "path";
 import { CommandExecutor, GitCloneExecutor, NpmExecutor } from ".";
+import { issueJob } from "./stores";
 
 const args = arg({
     "--help": Boolean,
     "--list-commands": Boolean,
     "--run": Boolean,
+    "--issue": Boolean,
     "--repo": String,
     "--wd": String
 });
@@ -17,6 +19,8 @@ Options:
 --help: Get some help
 --list-commands: List the available commands
 --run: Run all commands
+--issue: Issues a new job to be ran
+
 
 Arguments (R stands for required, if not optional):
 --repo: R The repo to download and run TASER on
@@ -61,7 +65,11 @@ if (args["--list-commands"]) {
     process.exit(0);
 }
 
-if (args["--run"]) {
+if (args["--issue"]) {
+    console.log("Issuing job to be ran")
+    issueJob({ name: `TaserJob-${repoAuthor}-${repoName}`, repo: repo })
+        .then(() => console.log("Job issued!"));
+} else if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
     commands.reduce((prom, command) => prom.then(_ => command.run()), new Promise(r => r("")));
 }
