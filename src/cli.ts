@@ -67,7 +67,11 @@ if (args["--list-commands"]) {
 
 if (args["--issue"]) {
     console.log("Issuing job to be ran")
-    issueJob({ name: `TaserJob-${repoAuthor}-${repoName}`, repo: repo })
+    issueJob({
+        name: `TaserJob-${repoAuthor}-${repoName}`,
+        repo: repo,
+        status: "pending"
+    })
         .then(() => console.log("Job issued!"));
 } else if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
