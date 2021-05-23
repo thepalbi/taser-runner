@@ -21,6 +21,7 @@ export class CommandExecutor {
             env: { ...process.env, ...this.env },
             cwd: this.wd
         }
+        console.log("env: %s", JSON.stringify(execOptions.env));
         return new Promise((resolve, reject) => {
             console.log("Executing %s. Command being executed [%s].", this.name, joinedCommand);
 

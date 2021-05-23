@@ -1,7 +1,8 @@
 import arg from "arg";
 import { isAbsolute, join } from "path";
-import { extractFromRepoUrl, GitCloneExecutor, NpmExecutor, runCommandExecutorsChain } from ".";
+import { extractFromRepoUrl, GitCloneExecutor, NpmExecutor, runCommandExecutorsChain, TaserExecutor } from ".";
 import { issueJob } from "./stores";
+import fs from "fs";
 
 const args = arg({
     "--help": Boolean,
@@ -41,11 +42,14 @@ if (!isAbsolute(wd)) {
 
 const { repoName, repoAuthor } = extractFromRepoUrl(repo);
 const clonePath = join(wd, `${repoAuthor}-${repoName}`);
+const npmPackageName = extractNpmPackageName(clonePath);
+const taserModelFilePath = join(clonePath, "model.json");
 
 let commands = [
     new GitCloneExecutor(repo, clonePath),
     new NpmExecutor("install", clonePath),
-    new NpmExecutor("test", clonePath)
+    new NpmExecutor("test", clonePath),
+    new TaserExecutor(clonePath, npmPackageName, taserModelFilePath)
 ];
 
 const commandNames = commands.map(command => command.name);
@@ -68,4 +72,10 @@ if (args["--issue"]) {
 } else if (args["--run"]) {
     console.log("Executing all commands: %s", commandNames.join(", "));
     runCommandExecutorsChain(commands);
+}
+
+function extractNpmPackageName(clonePath: string): string {
+    const packageJsonPath = join(clonePath, "package.json");
+    let textContents = fs.readFileSync(packageJsonPath, "utf-8");
+    return JSON.parse(textContents).name;
 }
