@@ -31,6 +31,7 @@ export function walkJobs(filter?: JobFilter): Iterable<{ key: number, value: Job
 }
 
 export function markTaken(id: number, props: JobProps) {
+    props.status = "working";
     jobsStore.putSync(id, props);
 }
 
