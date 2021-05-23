@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
-
+import fs from "fs";
+import path from "path";
 export class CommandExecutor {
     name: string;
     command: string[];
@@ -36,8 +37,24 @@ export class CommandExecutor {
 }
 
 export class GitCloneExecutor extends CommandExecutor {
+    private repoDir: string;
+
     constructor(repo: string, cloneDir: string) {
         super("GitClone", ["git", "clone", repo, cloneDir]);
+        this.repoDir = cloneDir;
+    }
+
+    run(): Promise<string> {
+        return new Promise((res, rej) => {
+            fs.stat(path.join(this.repoDir, ".git"), (err, stats) => {
+                if (err == null) {
+                    // Repo already cloned
+                    console.log("Repository already cloned in %s", this.repoDir);
+                    return res("");
+                }
+                super.run().then(s => res(s)).catch(err => rej(err));
+            });
+        });
     }
 }
 
