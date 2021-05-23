@@ -1,22 +1,24 @@
 import { exec } from 'child_process';
 
-// TODO: Add CWD
-class CommandExecutor {
+export class CommandExecutor {
     name: string;
     command: string[];
     env: { [key: string]: any; };
+    wd?: string;
 
-    constructor(name: string, command: string[], env?: { [key: string]: any }) {
+    constructor(name: string, command: string[], env?: { [key: string]: any }, wd?: string) {
         this.name = name;
         this.command = command;
         this.env = env == undefined ? {} : env;
+        this.wd = wd;
     }
 
-    run() {
+    run(): Promise<string> {
         let joinedCommand = this.command.join(" ");
         let execOptions = {
             // Compose custom environment variables with process ones
-            env: { ...process.env, ...this.env }
+            env: { ...process.env, ...this.env },
+            cwd: this.wd
         }
         return new Promise((resolve, reject) => {
             console.log("Executing %s. Command being executed [%s].", this.name, joinedCommand);
@@ -26,16 +28,16 @@ class CommandExecutor {
                     resolve(stdout);
                 }
 
-                console.error("Error executing %s. STDERR:\n%s \nSTDOUT:\n%s\n", this.name, stderr, stdout);
+                console.error("Error executing %s. STDERR:\n%s\nSTDOUT:\n%s\n", this.name, stderr, stdout);
                 reject(new Error("error executing " + this.name))
             })
         });
     }
 }
 
-class GitCloneExecutor extends CommandExecutor {
-    constructor(repo: string) {
-        super("GitClone", ["git", "clone", repo]);
+export class GitCloneExecutor extends CommandExecutor {
+    constructor(repo: string, cloneDir: string) {
+        super("GitClone", ["git", "clone", repo, cloneDir]);
     }
 }
 
@@ -43,19 +45,18 @@ function capitalize(s: string) {
     return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-class NpmExecutor extends CommandExecutor {
-    constructor(target: string) {
-        super("Npm" + capitalize(target), ["npm", target]);
+export class NpmExecutor extends CommandExecutor {
+    constructor(target: string, projectDir: string) {
+        super("Npm" + capitalize(target), ["npm", target], undefined, projectDir);
     }
 }
 
-class TaserExecutor extends CommandExecutor {
-    constructor(packageName: string, modelFilePath: string) {
-        // This just runs mocha test suites. Generalize?
+export class TaserExecutor extends CommandExecutor {
+    constructor(projectDir: string, packageName: string, modelFilePath: string) {
+        // TODO: This just runs mocha test suites. Generalize?
         let env = {
             // TODO: Extract all taser specific configs
-            // CHANGEME: Change this once CWD is implemented in CommandExecutor
-            "LIBRARY_ROOT_PATH": process.cwd(),
+            "LIBRARY_ROOT_PATH": projectDir,
             "POLICY_FILE": "/persistent2/tsm-setup/taser/src/DefaultPolicy.js",
             "POLICY_OUT": modelFilePath,
             "LIBRARY_UNDER_TEST": packageName,
@@ -64,6 +65,6 @@ class TaserExecutor extends CommandExecutor {
         super("Taser",
             ["/home/pbalbi/repos/mx/mx", "-p", "/persistent2/tsm-setup/workspace-nodeprof/nodeprof.js",
                 "jalangi", "--analysis", "/persistent2/tsm-setup/taser/src/AintNodeTaint.js",
-                "node_modules/mocha/bin/mocha", "test/"], env);
+                "node_modules/mocha/bin/mocha", "test/"], env, projectDir);
     }
 }
